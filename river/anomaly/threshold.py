@@ -69,9 +69,10 @@ class ConstantThresholder(Thresholder):
 
     """
 
-    def __init__(self, anomaly_detector: AnomalyDetector, threshold: float):
+    def __init__(self, anomaly_detector: AnomalyDetector, threshold: float, absolute: bool = False):
         super().__init__(anomaly_detector)
         self.threshold = threshold
+        self.absolute = absolute
 
     @classmethod
     def _unit_test_params(cls):
@@ -80,7 +81,9 @@ class ConstantThresholder(Thresholder):
         yield {"anomaly_detector": HalfSpaceTrees(), "threshold": 0.5}
 
     def score_one(self, x):
-        return 1 if self.anomaly_detector.score_one(x) > self.threshold else 0
+        score = self.anomaly_detector.score_one(x)
+        score = abs(score) if self.absolute else score
+        return 1 if score > self.threshold else 0
 
 
 class QuantileThresholder(Thresholder):
